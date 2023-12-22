@@ -7,6 +7,7 @@ router.get('/create', courseController.create);
 router.post('/store', courseController.store); //luu du lieu moi create
 router.get('/:id/edit', courseController.edit);
 router.put('/:id', courseController.update); //khi submit form chinh sua
+router.delete('/:id', courseController.destroy); //khi delete khóa học
 
 router.get('/:slug', courseController.show);
 
