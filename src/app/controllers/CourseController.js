@@ -8,7 +8,7 @@ class CourseController {
         Course.findOne({ slug: req.params.slug })
             .lean()
             .then((course) => {
-                res.render("courses/show", { course });
+                res.render('courses/show', { course });
                 // res.render('courses/show');
                 // res.json(course);
             })
@@ -23,17 +23,16 @@ class CourseController {
 
     //[POST] //courses/store  (xu li luu du lieu)
     store(req, res, next) {
-        // res.json(req.body);
-        // req.body.image = `https://www.giaoxugiaohovietnam.com/ThaiBinh/ThuChinh/ThuChinh-07112014%20(24).JPG`;
         const formData = req.body;
+        formData.image = `https://www.giaoxugiaohovietnam.com/ThaiBinh/ThuChinh/ThuChinh-07112014%20(24).JPG`;
         const course = new Course(formData);
         course.save()
-            .then(() => res.redirect('/'))
-            .catch(error => {
-
-            });
+            // .lean()
+            .then(() => res.redirect('/me/stored/courses'))
+            .catch(next);
 
         // res.send('SAVE COURSES!!');
+        // res.json(req.body);
     }
 
     //[GET] //courses/:id/edit
@@ -59,7 +58,31 @@ class CourseController {
 
     //[DELETE] //courses/:id
     destroy(req, res, next) {
+        // Xóa thật ở trong DB
+        // Course.deleteOne({ _id: req.params.id })
+        //     .lean()
+        //     .then(() => res.redirect('back')) //Khi thành công thì thực thi
+        //     .catch(next);
+
+        //Soft Delete
+        Course.delete({ _id: req.params.id })
+            .lean()
+            .then(() => res.redirect('back')) //Khi thành công thì thực thi
+            .catch(next);
+    }
+
+    //[DELETE] //courses/:id/force
+    forceDestroy(req, res, next) {
+        // Xóa thật ở trong DB
         Course.deleteOne({ _id: req.params.id })
+            .lean()
+            .then(() => res.redirect('back')) //Khi thành công thì thực thi
+            .catch(next);
+    }
+
+    //[PATCH] //courses/:id/restore
+    restore(req, res, next) {
+        Course.restore({ _id: req.params.id })
             .lean()
             .then(() => res.redirect('back')) //Khi thành công thì thực thi
             .catch(next);
