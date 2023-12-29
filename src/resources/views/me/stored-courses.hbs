@@ -1,12 +1,25 @@
-<div class="mt-4">
+<form class="mt-4" name="container-form" method="POST" action="/courses/handle-form-action">
     <div>
         <h3>Khóa học của tôi</h3>
         <a href="/me/trash/courses">Thùng rác ({{deletedCount}})</a>
+
+        <div class="mt-4 mb-4 d-flex align-items-center">
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="checkbox-all">
+                <label class="custom-control-label" for="checkbox-all">Chọn tất cả</label>
+            </div>
+
+            <select class="form-control checkbox-selected-all-options" name="action" required>
+                <option value="">--Chọn hành động--</option>
+                <option value="deleted">Xóa</option>
+            </select>
+            <button class="btn btn-primary btn-sm disabled check-all-submit-btn">Thực hiện</button>
+        </div>
     </div>
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">#</th>
+                <th scope="col" colspan="2">#</th>
                 <th scope="col">Tên khóa học</th>
                 <th scope="col">Trình độ</th>
                 <th scope="col" colspan="2">Thời gian tạo</th>
@@ -15,6 +28,11 @@
         <tbody>
             {{#each courses}}
             <tr>
+                <td>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="courseIds[]" value="{{this._id}}">
+                    </div>
+                </td>
                 <th scope="row">{{sum @index 1}}</th>
                 <td>{{this.name}}</td>
                 <td>{{this.level}}</td>
@@ -37,7 +55,7 @@
         </tbody>
     </table>
 
-</div>
+</form>
 
 {{!-- Confirm delete course --}}
 <div class="modal fade" id="deleteCourseModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -70,6 +88,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         var courseId;
         var deleteForm = document.forms['deleteCourseForm'];
+        var btnDeleteCourse = document.getElementById('btn-delete-course');
+        var checkboxAll = $('#checkbox-all');
+        var courseItemCheckbox = $('input[name="courseIds[]"]');
+        var checkAllSubmitBtn = $('.check-all-submit-btn');
+        var containerForm = document.forms['container-form'];
 
         //when dialog confirm click
         $('#deleteCourseModel').on('show.bs.modal', function (event) {
@@ -78,11 +101,47 @@
         })
 
         //Lắng nghe sự kiện delete khi click vào
-        var btnDeleteCourse = document.getElementById('btn-delete-course');
         btnDeleteCourse.onclick = function () {
             deleteForm.action = '/courses/' + courseId + '?_method=DELETE';
             deleteForm.submit();
         }
+
+        //console.log(checkboxAll);
+        //checkboxAll click
+        checkboxAll.change(function () {
+            var isCheckedAll = $(this).prop('checked');
+            if (isCheckedAll) courseItemCheckbox.prop('checked', true);
+            else courseItemCheckbox.prop('checked', false);
+            renderCheckAllSubmitBtn();
+        })
+
+        //courseItemCheckbox change --> checkboxAll is not true
+        courseItemCheckbox.change(function () {
+            var isCheckedAll = courseItemCheckbox.length === $('input[name="courseIds[]"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+            renderCheckAllSubmitBtn();
+        })
+
+        //Khi ko click thi disabled va nguoc lai
+        function renderCheckAllSubmitBtn() {
+            var checkedCount = $('input[name="courseIds[]"]:checked').length;
+            if (checkedCount > 0) checkAllSubmitBtn.removeClass('disabled');
+            else checkAllSubmitBtn.addClass('disabled');
+        }
+
+        //khi disabled thi ko dc submit
+        checkAllSubmitBtn.click(function (e) {
+            e.preventDefault();
+            var isSubmitable = !$(this).hasClass('disabled');
+            if (isSubmitable) containerForm.submit();
+
+        })
+
+        checkAllSubmitBtn.on('submit', function (e) {
+            var isSubmitable = !$(this).hasClass('disabled');
+            if (!isSubmitable) e.preventDefault();
+        })
+
     })
 
 </script>

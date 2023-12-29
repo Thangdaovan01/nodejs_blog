@@ -5,6 +5,7 @@ const courseController = require('../app/controllers/CourseController')
 
 router.get('/create', courseController.create);
 router.post('/store', courseController.store); //luu du lieu moi create
+router.post('/handle-form-action', courseController.handleFormAction);
 router.get('/:id/edit', courseController.edit);
 router.put('/:id', courseController.update); //khi submit form chinh sua
 router.patch('/:id/restore', courseController.restore); //khi khoi phuc khoa hoc

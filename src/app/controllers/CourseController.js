@@ -87,6 +87,21 @@ class CourseController {
             .then(() => res.redirect('back')) //Khi thành công thì thực thi
             .catch(next);
     }
+
+    //[POST] //courses/handle-form-action
+    handleFormAction(req, res, next) {
+        switch (req.body.action) {
+            case 'deleted':
+                Course.delete({ _id: { $in: req.body.courseIds } })
+                    .lean()
+                    .then(() => res.redirect('back')) //Khi thành công thì thực thi
+                    .catch(next);
+                break;
+            default:
+                res.json({ message: "Action is invalid!" });
+
+        }
+    }
 }
 
 module.exports = new CourseController;
